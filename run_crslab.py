@@ -19,7 +19,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config', type=str,
                         default='config/crs/tgredial/tgredial.yaml', help='config file(yaml) path')
-    parser.add_argument('-g', '--gpu', type=str, default='-1',
+    parser.add_argument('-g', '--gpu', type=str, default='0',
                         help='specify GPU id(s) to use, we now support multiple GPUs. Defaults to CPU(-1).')
     parser.add_argument('-sd', '--save_data', action='store_true',
                         help='save processed dataset')
@@ -36,9 +36,20 @@ if __name__ == '__main__':
     parser.add_argument('-tb', '--tensorboard', action='store_true',
                         help='enable tensorboard to monitor train performance')
     args, _ = parser.parse_known_args()
+    # print(args)
+    # print(args.config, type(args.config))
+    # print(args.gpu, type(args.gpu))
+    #print(args.debug, type(args.debug))
+    # 配置参数字典
     config = Config(args.config, args.gpu, args.debug)
 
     from crslab.quick_start import run_crslab
 
-    run_crslab(config, args.save_data, args.restore_data, args.save_system, args.restore_system, args.interact,
-               args.debug, args.tensorboard)
+    run_crslab(config,
+               args.save_data,
+               args.restore_data,
+               args.save_system,
+               args.restore_system,
+               args.interact,
+               args.debug,
+               args.tensorboard)

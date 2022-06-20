@@ -33,20 +33,28 @@ class Config:
 
         """
 
+        # self.opt保存yaml文件解析为字典，保存各参数。
         self.opt = self.load_yaml_configs(config_file)
+        print('self.opt:', self.opt)
+        print('=======self.opt end=======')
+
         # gpu
         os.environ['CUDA_VISIBLE_DEVICES'] = gpu
+        #os.environ['CUDA_VISIBLE_DEVICES'] = '1'
         self.opt['gpu'] = [i for i in range(len(gpu.split(',')))]
-        # dataset
+        #print(self.opt['gpu'])
+        # dataset 选择数据集
         dataset = self.opt['dataset']
         tokenize = self.opt['tokenize']
         if isinstance(tokenize, dict):
+            print('tokenize is a dict type')
             tokenize = ', '.join(tokenize.values())
         # model
         model = self.opt.get('model', None)
-        rec_model = self.opt.get('rec_model', None)
-        conv_model = self.opt.get('conv_model', None)
-        policy_model = self.opt.get('policy_model', None)
+        rec_model = self.opt.get('rec_model', None) #推荐模型
+        conv_model = self.opt.get('conv_model', None) #对话模型
+        policy_model = self.opt.get('policy_model', None) #策略模型
+        # 三个模型模型可以分开指定，也可以用一个参数指定
         if model:
             model_name = model
         else:
@@ -59,9 +67,10 @@ class Config:
                 models.append(policy_model)
             model_name = '_'.join(models)
         self.opt['model_name'] = model_name
-        # log
-        log_name = self.opt.get("log_name", dataset + '_' + model_name + '_' + time.strftime("%Y-%m-%d-%H-%M-%S",
-                                                                                             time.localtime())) + ".log"
+        # log 设置log名字
+        log_name = self.opt.get("log_name",
+                                dataset+'_'+model_name+'_'+time.strftime("%Y-%m-%d-%H-%M-%S",time.localtime()))+".log"
+        #设置保存日志的文件夹
         if not os.path.exists("log"):
             os.makedirs("log")
         logger.remove()
@@ -83,16 +92,13 @@ class Config:
             logger.info(f'[Policy Model: {policy_model}]')
         logger.info("[Config]" + '\n' + json.dumps(self.opt, indent=4))
 
-    @staticmethod
+    @staticmethod #修饰类中的方法,使其可以在不创建类实例的情况下调用方法
     def load_yaml_configs(filename):
         """This function reads ``yaml`` file to build config dictionary
-
         Args:
             filename (str): path to ``yaml`` config
-
         Returns:
             dict: config
-
         """
         config_dict = dict()
         with open(filename, 'r', encoding='utf-8') as f:
@@ -127,6 +133,7 @@ class Config:
             return default
 
     def __contains__(self, key):
+        #print('__contains__:using')
         if not isinstance(key, str):
             raise TypeError("index must be a str.")
         return key in self.opt
@@ -137,7 +144,12 @@ class Config:
     def __repr__(self):
         return self.__str__()
 
-
 if __name__ == '__main__':
     opt_dict = Config('../../config/crs/kbrd/redial.yaml')
+    print('=====')
     pprint(opt_dict)
+
+    #print('datasets' in opt_dict)
+    #print(opt_dict.__contains__('das'))
+    #print(opt_dict['dataset'])
+    #pprint(repr(opt_dict))
